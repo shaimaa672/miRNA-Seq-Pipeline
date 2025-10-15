@@ -1,0 +1,13 @@
+name: mirna-seq-auto
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - cutadapt=4.4
+  - fastqc=0.12.1
+  - bowtie2=2.5.1
+  - samtools=1.17
+  - subread=2.0.6
+  - multiqc=1.14
+  - python=3.10
