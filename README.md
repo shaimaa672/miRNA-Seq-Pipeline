@@ -4,7 +4,7 @@ An automated upstream analysis pipeline for small RNA-seq (miRNA-seq) data from 
 
 ## Overview
 
-This pipeline was built for processing miRNA-seq data in a pediatric cancer research context, where consistent, reproducible preprocessing is essential before differential expression and pathway enrichment analysis. It automates the steps that are usually repeated by hand for every sample:
+This pipeline automates the preprocessing steps for miRNA-seq data that are usually repeated by hand for every sample, ensuring consistent and reproducible results before downstream differential expression and enrichment analysis.
 
 1. **Quality control** on raw reads (FastQC)
 2. **Adapter trimming** with length filtering for mature miRNAs (Cutadapt)
