@@ -1,0 +1,10 @@
+name: base
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - fastqc=0.12.1
+  - cutadapt=4.4
+  - multiqc=1.14
+  - python=3.10
