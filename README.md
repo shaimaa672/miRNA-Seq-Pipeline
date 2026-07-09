@@ -15,10 +15,10 @@ This pipeline was built for processing miRNA-seq data in a pediatric cancer rese
 ## Requirements
 
 - Conda (Miniconda or Anaconda)
-- Three conda environments (see `environment.yml`), containing:
-  - `base`: fastqc, cutadapt
-  - `bowtie2`: bowtie2, samtools
-  - `featurecounts`: subread (featureCounts)
+- Three conda environments (see `environment_base.yml`, `environment_bowtie2.yml`, `environment_featurecounts.yml`):
+  - `base`: fastqc 0.12.1, cutadapt 4.4, multiqc 1.14
+  - `bowtie2`: bowtie2 2.5.1, samtools 1.17
+  - `featurecounts`: subread 2.0.6 (featureCounts)
 - A Bowtie2 index built for your reference genome/miRBase reference
 - A GTF annotation file matching your reference
 
@@ -29,11 +29,13 @@ This pipeline was built for processing miRNA-seq data in a pediatric cancer rese
 git clone https://github.com/shaimaa672/miRNA-Seq-Pipeline.git
 cd miRNA-Seq-Pipeline
 
-# Create environments (adjust as needed, see environment.yml)
-conda create -n base -c bioconda fastqc cutadapt
-conda create -n bowtie2 -c bioconda bowtie2 samtools
-conda create -n featurecounts -c bioconda subread
+# Create the three environments
+conda env create -f environment_base.yml
+conda env create -f environment_bowtie2.yml
+conda env create -f environment_featurecounts.yml
 ```
+
+The pipeline script activates each environment as needed for its corresponding step (`conda activate base`, `conda activate bowtie2`, `conda activate featurecounts`).
 
 Before running, edit `miRNA_pipeline.sh` and update:
 - `THREADS` to match your available CPU cores
@@ -55,6 +57,7 @@ fastqc/           # QC reports, pre- and post-trimming
 trimmed_fastq/    # Adapter-trimmed, length-filtered reads (15-30 nt)
 mapping/          # Sorted, indexed BAM files + Bowtie2 alignment logs
 counts/           # Final count matrix (miRNA_counts.txt)
+multiqc/          # Aggregated QC report across all samples (MultiQC)
 ```
 
 The final `counts/miRNA_counts.txt` file is a sample-by-feature count matrix ready to load directly into R (e.g. `edgeR`, `DESeq2`) or Python for downstream differential expression and pathway enrichment analysis.
@@ -64,6 +67,7 @@ The final `counts/miRNA_counts.txt` file is a sample-by-feature count matrix rea
 - Adapter sequence defaults to the Illumina small RNA adapter (`TGGAATTCTCGGGTGCCAAGG`); change in the script if using a different library prep kit.
 - Length filtering (15-30 nt) is tuned for mature miRNAs; adjust `MIN_LEN`/`MAX_LEN` for other small RNA species.
 - See `CONFIG_NOTES.md` for additional configuration details.
+- MultiQC lives in the `base` environment alongside FastQC and Cutadapt, since it's typically run right after the QC steps.
 
 ## License
 
