@@ -14,7 +14,7 @@ MIN_LEN=15
 MAX_LEN=30
 
 # Create output directories
-mkdir -p {fastqc,trimmed_fastq,mapping,counts}
+mkdir -p {fastqc,trimmed_fastq,mapping,counts,multiqc}
 
 # Function to check and activate conda environments
 activate_env() {
@@ -76,6 +76,10 @@ for f in trimmed_fastq/*_trimmed.fastq.gz; do
         fastqc "$f" -o fastqc/ --threads $THREADS
     fi
 done
+
+# Step 3b: Aggregate QC reports with MultiQC (base environment)
+echo "3b. Aggregating QC reports with MultiQC..."
+multiqc fastqc/ -o multiqc/
 conda deactivate
 
 # Step 4: Mapping with Bowtie2 (bowtie2 environment)
@@ -148,8 +152,8 @@ echo "Finished: $(date)"
 echo ""
 echo "📊 OUTPUT SUMMARY:"
 echo "✓ QC reports:          fastqc/"
+echo "✓ Aggregated QC:       multiqc/"
 echo "✓ Trimmed reads:       trimmed_fastq/" 
 echo "✓ BAM files:           mapping/"
 echo "✓ Count matrix:        counts/miRNA_counts.txt"
 echo "✓ Alignment stats:     mapping/*_bowtie2.log"
-
