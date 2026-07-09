@@ -1,24 +1,70 @@
-# miRNA-seq Analysis Pipeline
+# miRNA-Seq Pipeline
 
-A simple, automated pipeline for miRNA sequencing data analysis from Illumina platforms.
+An automated upstream analysis pipeline for small RNA-seq (miRNA-seq) data from Illumina sequencers. Takes raw FASTQ files through quality control, adapter trimming, alignment, and feature counting to produce a ready-to-use count matrix for downstream differential expression or biomarker analysis.
 
-## 🚀 Quick Start
+## Overview
+
+This pipeline was built for processing miRNA-seq data in a pediatric cancer research context, where consistent, reproducible preprocessing is essential before differential expression and pathway enrichment analysis. It automates the steps that are usually repeated by hand for every sample:
+
+1. **Quality control** on raw reads (FastQC)
+2. **Adapter trimming** with length filtering for mature miRNAs (Cutadapt)
+3. **Post-trim quality control** (FastQC)
+4. **Alignment** to a reference genome or miRNA index (Bowtie2)
+5. **Feature counting** to generate a sample-by-miRNA count matrix (featureCounts)
+
+## Requirements
+
+- Conda (Miniconda or Anaconda)
+- Three conda environments (see `environment.yml`), containing:
+  - `base`: fastqc, cutadapt
+  - `bowtie2`: bowtie2, samtools
+  - `featurecounts`: subread (featureCounts)
+- A Bowtie2 index built for your reference genome/miRBase reference
+- A GTF annotation file matching your reference
+
+## Setup
 
 ```bash
-# 1. Download this pipeline
-git clone https://github.com/shaimaa672/miRNA-seq-pipeline.git
-cd miRNA-seq-pipeline
+# Clone the repo
+git clone https://github.com/shaimaa672/miRNA-Seq-Pipeline.git
+cd miRNA-Seq-Pipeline
 
-# 2. Make script executable
-chmod +x miRNA_pipeline.sh
+# Create environments (adjust as needed, see environment.yml)
+conda create -n base -c bioconda fastqc cutadapt
+conda create -n bowtie2 -c bioconda bowtie2 samtools
+conda create -n featurecounts -c bioconda subread
+```
 
-# 3. Update paths in the script 
-nano miRNA_pipeline.sh
+Before running, edit `miRNA_pipeline.sh` and update:
+- `THREADS` to match your available CPU cores
+- The Bowtie2 index path (currently `/path/to/bowtie2/index`)
+- The GTF annotation path (currently `/path/to/annotation.gtf`)
 
-# 4. Run the pipeline
-./miRNA_pipeline.sh
+## Usage
 
-#If you don't know your adapter sequence, use fastp for automatic adapter detection:
-# Install fastp
-conda install -c bioconda fastp
-fastp -i input.fastq.gz -o trimmed.fastq.gz --detect_adapter_for_pe
+Place your raw `.fastq.gz` files in the working directory, then run:
+
+```bash
+bash miRNA_pipeline.sh
+```
+
+## Output
+
+```
+fastqc/           # QC reports, pre- and post-trimming
+trimmed_fastq/    # Adapter-trimmed, length-filtered reads (15-30 nt)
+mapping/          # Sorted, indexed BAM files + Bowtie2 alignment logs
+counts/           # Final count matrix (miRNA_counts.txt)
+```
+
+The final `counts/miRNA_counts.txt` file is a sample-by-feature count matrix ready to load directly into R (e.g. `edgeR`, `DESeq2`) or Python for downstream differential expression and pathway enrichment analysis.
+
+## Notes
+
+- Adapter sequence defaults to the Illumina small RNA adapter (`TGGAATTCTCGGGTGCCAAGG`); change in the script if using a different library prep kit.
+- Length filtering (15-30 nt) is tuned for mature miRNAs; adjust `MIN_LEN`/`MAX_LEN` for other small RNA species.
+- See `CONFIG_NOTES.md` for additional configuration details.
+
+## License
+
+MIT License, see `LICENSE`.
